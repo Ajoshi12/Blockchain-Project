@@ -1,2 +1,2 @@
 # Blockchain-Project
-Simple Blockchain project in Java 
+Simple user interactive Blockchain project in Java 
