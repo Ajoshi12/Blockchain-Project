@@ -1,7 +1,12 @@
 import java.util.ArrayList;
 import java.security.Security;
 import java.util.Scanner;
-
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Chain
 {
@@ -72,6 +77,7 @@ public static int difficult = 4;
       System.out.println();
       num++;
     }
+
   }
 
 // method loops through all blocks in the chain and compare the hashes
@@ -105,5 +111,72 @@ public static int difficult = 4;
     }
     return true;
   }
+
+  public static void myDB()
+  {
+     String driver = "com.mysql.jdbc.Driver";
+     String connection = "jdbc:mysql://localhost:3306/User_Transactions"; //User_Transactions is the database name
+     String user = "TransactionAdmin";
+     String password = "password";   // using the safest password in the history of humanity!!!!!
+     Connection con = null;
+     Statement state = null;
+     ResultSet result;
+     PreparedStatement pstate;
+     // for the connection to the database
+     try
+    {
+        Class.forName(driver);
+        con = DriverManager.getConnection(connection, user, password);
+        System.out.println("Successfully connected to database.");
+    }
+    catch(ClassNotFoundException e)
+    {
+        System.err.println("Couldn't load driver.");
+    }
+    catch(SQLException e)
+    {
+        System.err.println("Couldn't connect to database.");
+    }
+
+     // now time to insert all the data from one session into the database
+     try
+     {
+       for(int i = 0; i < blockchain.size(); i++)
+        {
+           pstate = con.prepareStatement("insert into AllTransactionHistory(Block, Amount, Reviever, Timestamp, Previous Hash, Hash)"+
+                                           "values(?,?,?,?,?,?)");
+           pstate.setString(1, blockchain.get(i).getData());
+           pstate.setString(2, blockchain.get(i).getSender());
+           pstate.setString(3, blockchain.get(i).getReciever());
+           pstate.setString(4, blockchain.get(i).getTimeStamp());
+           pstate.setString(5, blockchain.get(i).getPrevHash());
+           pstate.setString(6, blockchain.get(i).getHash());
+        }
+           //int value = pstate.executeUpdate();
+           }
+       catch(SQLException e)
+       {
+           System.err.println("Insertion error");
+       }
+
+       // in order to close the connection
+            try
+            {
+               if(!con.isClosed())
+              {
+               con.close();
+               System.out.println("Database closed successfully.");
+               }
+           }
+       catch(NullPointerException e)
+       {
+           System.err.println("Couldn't load driver.");
+       }
+       catch(SQLException e)
+       {
+           System.err.println("Couldn't close database.");
+       }
+  }
+
 
 }
